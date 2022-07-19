@@ -1,0 +1,110 @@
+﻿@page "/ContactMe"
+@using MyNewApplication.Data
+@inject SQLiteService db
+
+<PageTitle>Contact Me</PageTitle>
+
+  <section id="contact">
+  
+  <h1 class="section-header">Contact</h1>
+  
+  <div class="contact-wrapper">
+  
+  <!-- Left contact page --> 
+    
+    <form id="contact-form" class="form-horizontal" role="form">
+       
+      <div class="form-group">
+        <div class="col-sm-12">
+          <input type="text" class="form-control" id="name" placeholder="NAME" name="name" required @bind="Name">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="col-sm-12">
+          <input type="email" class="form-control" id="email" placeholder="EMAIL" name="email"required @bind="Email">
+        </div>
+      </div>
+
+      <textarea class="form-control" rows="10" placeholder="MESSAGE" name="message" required @bind="Message"></textarea>
+      
+      <button class="btn btn-primary send-button" id="submit" type="submit" value="SEND" @onclick="checkFields">
+        <div class="alt-send-button">
+          <i class="fa fa-paper-plane"></i><span class="send-text">SEND</span>
+        </div>
+      
+      </button>
+      
+    </form>
+    
+  <!-- Right contact page --> 
+    
+      <div class="direct-contact-container">
+
+        <ul class="contact-list">
+          <li class="list-item"><i class="fa fa-map-marker fa-2x"><span class="contact-text place">Big Lake, Texas</span></i></li>
+          
+          <li class="list-item"><i class="fa fa-phone fa-2x"><span class="contact-text phone"><a href="tel:1-325-245-1656" title="Give me a call">(325) 245-1656</a></span></i></li>
+          
+          <li class="list-item"><i class="fa fa-envelope fa-2x"><span class="contact-text gmail"><a href="mailto:tristan.ortiz@ttu.edu" title="Send me an email">tristan.ortiz@ttu.edu</a></span></i></li>
+          
+        </ul>
+        
+        <hr>
+        <ul class="social-media-list">
+          <a href="https://github.com/TristanOrtiz" target="_blank" class="contact-icon">
+            <li>
+              <i class="fa fa-github"></i>
+            </li>
+          </a>
+          <a href="https://www.linkedin.com/in/tristan-ortiz-82222a241/" target="_blank" class="contact-icon">
+            <li>
+              <i class="fa fa-linkedin-square"></i>
+            </li>
+          </a>
+          <a href="https://www.facebook.com/tristan.ortiz1/" target="_blank" class="contact-icon">
+            <li>
+              <i class="fa fa-facebook"></i>
+            </li>
+          </a>
+          <a href="https://www.instagram.com/t.o____/" target="_blank" class="contact-icon">
+            <li>
+              <i class="fa fa-instagram"></i>
+            </li>
+          </a>
+        </ul>
+        <hr>
+
+      </div>
+    
+  </div>
+  
+</section>  
+  
+@code{
+    string Name{ get; set; }
+    string Email { get; set; }
+    string Message { get; set; }
+
+
+    protected override void OnInitialized()
+    {
+        db.Init();
+    }
+
+    private void Sendclicked()
+    {
+        Contact contact = new(Name, Email, Message);
+
+        db.CreateContact(contact);
+    }
+
+    void checkFields()
+    {
+        if (Name != null && Email != null && Message != null)
+        {
+            Sendclicked();
+        }
+    }
+
+  }
