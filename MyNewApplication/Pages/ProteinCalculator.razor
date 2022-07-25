@@ -1,0 +1,175 @@
+﻿@page "/ProteinCalculator"
+@inject IJSRuntime JsRuntime
+
+<PageTitle>Protein Calculator</PageTitle>
+
+
+<h1 class="pt-5">Protein Calculator</h1>
+
+
+<form>
+  <input name="age" autocomplete="off" type="number" class="feedback-input" placeholder="Age" @bind="@age" required min="1" max="100"/>
+  
+  <ul class="no-bullets">
+	  <li class="heading h3">Gender</li>
+	  <li>
+		  <input type="radio" name="gender" id="male" checked="@(gender == 1)" @onchange="@(() => gender = 1)" required />
+		  <label for="male">Male</label>
+	  </li>
+	  <li>
+		  <input type="radio" name="gender" id="female" checked="@(gender == 2)" @onchange="@(() => gender = 2)"/>
+		  <label for="female">Female</label>
+	  </li>
+  </ul>
+
+  <input name="height" type="number" autocomplete="off" class="feedback-input" placeholder="Height in cm" @bind="@height" required min="1"/>   
+  
+  <input name="weight" type="number" autocomplete="off" class="feedback-input" placeholder="Weight in kg" @bind="@weight" required min="1"/>
+  
+  <ul class="no-bullets">
+	<li class="heading h3">Activity Level</li>
+	<li>
+	  <input name="activity-level" id="little" type="radio" checked="@(activity == 1)" @onchange="@(() => activity = 1)" required />
+	  <label for="little">Little or No Exercise</label>
+	</li>
+	<li>
+		<input name="activity-level"  id="one" type="radio" checked="@(activity == 2)" @onchange="@(() => activity = 2)" />
+		<label for="one">Exercise 1-2 Times per Week</label>
+	</li>
+	<li>
+		<input name="activity-level" id="two" type="radio" checked="@(activity == 3)" @onchange="@(() => activity = 3)" />
+		<label for="two">Exercise 3-4 Times per Week</label>
+	</li>
+	<li>
+		<input name="activity-level" id="three" type="radio" checked="@(activity == 4)" @onchange="@(() => activity = 4)" />
+		<label for="three">Exercise 5-7 Times per Week</label>
+	</li>
+  </ul>
+
+  <ul class="no-bullets">
+	  <li class="heading h3">Goal</li>
+	  <li>
+		  <input type="radio" id="loss" name="goal" checked="@(goal == 1)" @onchange="@(() => goal = 1)" required />
+		  <label for="loss">Weight Loss</label>
+	  </li>
+	  <li>
+		  <input type="radio" id="maintain" name="goal" checked="@(goal == 2)" @onchange="@(() => goal = 2)" />
+		  <label for="maintain">Maintain</label>
+	  </li>
+	  <li>
+		  <input type="radio" id="gain" name="goal" checked="@(goal == 3)" @onchange="@(() => goal = 3)" />
+		  <label for="gain">Muscle Gain</label>
+	  </li>
+  </ul>
+
+	
+  
+  <button type="button" @onclick="checkFields">Calculate</button>
+
+
+  <div class="results" id="results" hidden="@hideLabel">
+	  <h1>Results</h1>
+	  <br />
+	  <h3>Total Calories: @finalCalories per day</h3>
+	  <h3 class="pb-3">Protein: @finalProtein grams per day</h3>
+	  <div>
+		  <h3 class="text-center">Explanation</h3>
+		  <p>The calculation to the results above, I used the <a href="https://en.wikipedia.org/wiki/Basal_metabolic_rate" target="_blank">Mifflin-St Jeor Equation</a> to find your Basal Metabolic Rate and did
+			  some of my own calculations to find the remaining results. 
+		  </p>
+	  </div>
+  </div>
+</form>
+
+
+
+
+
+@code{
+	double? calories;
+	double? protein;
+	double? age;
+	double? weight;
+	double? height;
+	int? gender;
+	int? activity;
+	int? goal;
+	double? bmr;
+	double? tdee;
+	private bool hideLabel = true;
+	string? finalProtein;
+	string? finalCalories;
+
+
+
+	public void calculate()
+	{
+		if (gender == 1)
+		{
+			bmr = (10 * weight) + (6.25 * height) - (5 * age) + 5;
+		}
+		else
+		{
+			bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161;
+		}
+
+		if (activity == 1)
+		{
+			tdee = 1.2 * bmr;
+		}
+		else if (activity == 2)
+		{
+			tdee = 1.375 * bmr;
+		}
+		else if (activity == 3)
+		{
+			tdee = 1.55 * bmr;
+		}
+		else
+		{
+			tdee = 1.725 * bmr;
+		}
+
+		switch (goal)
+		{
+			case 1:
+				calories = tdee * .90;
+				protein = (calories * .40) / 4;
+				finalProtein = protein.Value.ToString("0");
+				finalCalories = calories.Value.ToString("0");
+				break;
+
+			case 2:
+				calories = tdee;
+				protein = (calories * .30) / 4;
+				finalProtein = protein.Value.ToString("0");
+				finalCalories = calories.Value.ToString("0");
+			break;
+
+			case 3:
+				calories = tdee + 500;
+				protein = (calories * .30) / 4;
+				finalProtein = protein.Value.ToString("0");
+				finalCalories = calories.Value.ToString("0");
+				break;
+		}
+	}
+
+	async void checkFields()
+	{
+		if (age == null || gender == null || weight == null || height == null || activity == null || goal == null)
+		{
+			await JsRuntime.InvokeVoidAsync("alert", "Please make sure to input all fields!!");
+		}
+		else
+		{
+			calculate();
+			hideLabel = false;
+		}
+	}
+
+	
+
+
+	
+}
